@@ -1,0 +1,13 @@
+const String GOOGLE_CLIENT_ID = '553932496521-oiirr3su7n6edb22uvmgcv0o51nij0ce.apps.googleusercontent.com';
+const String FACEBOOK_CLIENT_ID = '1111712459509048';
+const String TWITTER_API_KEY = 'YOUR_TWITTER_API_KEY';
+const String TWITTER_API_SECRET_KEY = 'YOUR_TWITTER_API_SECRET_KEY';
+const String TWITTER_REDIRECT_URI = 'YOUR_TWITTER_REDIRECT_URI';
+const String CLOUDFLARE_ACCOUNT_ID ='d16dbf22c76479dee798a5136c34b582';
+const String CLOUDFLARE_ACCOUNT_NAME = 'Culinect@gmail.com';
+const String R2_TOKEN_VALUE = 'rieiVHrzyG9as3f73O2h3faSGhAq7rNi__5v_Ubh';
+const String S3_CLIENT_ACCESS_KEY_ID = '722b395e5aeb71b6b5aca446321ea65b';
+const String S3_CLIENT_SECRET_ACCESS_KEY = 'e02a037ecead17a03f719fb336a46a4d172b7a1362e584a6c12823752470399b';
+const String S3_CLIENT_DEFAULT_ENDPOINTS = 'https://d16dbf22c76479dee798a5136c34b582.r2.cloudflarestorage.com';
+const String S3_CLIENT_EU_ENDPOINTS = 'https://d16dbf22c76479dee798a5136c34b582.eu.r2.cloudflarestorage.com';
+const String CLOUDFLARE_GLOBAL_API_KEY = '8c6071952075b19195aafa81884364e803d16';

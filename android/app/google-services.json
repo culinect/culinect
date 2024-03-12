@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "553932496521",
+    "firebase_url": "https://culinect-social-default-rtdb.firebaseio.com",
+    "project_id": "culinect-social",
+    "storage_bucket": "culinect-social.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:553932496521:android:1ae9ade2d19bc0a9eef058",
+        "android_client_info": {
+          "package_name": "com.culinect.culinect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "553932496521-mmtgu9ldb8p5sbo4bnoinmqmr3fjercs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.culinect.culinect",
+            "certificate_hash": "809b703a971c0292b36dc3a2c00a63e28caced15"
+          }
+        },
+        {
+          "client_id": "553932496521-h4rv7mucbl1movam4eqblkk7t6poesb1.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBEyLE2_YTX8x6zPm7z0Vpbr_ETbcFUz9Y"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "553932496521-h4rv7mucbl1movam4eqblkk7t6poesb1.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "553932496521-3gb60bo6a7q57r349cofa133ka5a14ej.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.culinect.culinect"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
