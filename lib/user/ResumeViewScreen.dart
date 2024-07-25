@@ -111,20 +111,20 @@ class _ResumeViewScreenState extends State<ResumeViewScreen> {
       children: [
         Text(
           'Resume',
-          style: Theme.of(context).textTheme.headline4,
+          style: Theme.of(context).textTheme.titleLarge,
         ),
         const SizedBox(height: 10),
         Text(
           'Name: ${FirebaseAuth.instance.currentUser!.displayName ?? 'Unknown'}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         Text(
           'Email: ${FirebaseAuth.instance.currentUser!.email ?? 'Unknown'}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         Text(
           'Resume Link: ${resume.resumeLink}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );
@@ -133,7 +133,7 @@ class _ResumeViewScreenState extends State<ResumeViewScreen> {
   Widget _buildSectionTitle(String title) {
     return Text(
       title,
-      style: Theme.of(context).textTheme.headline6?.copyWith(
+      style: Theme.of(context).textTheme.bodyLarge?.copyWith(
             fontWeight: FontWeight.bold,
           ),
     );
@@ -145,15 +145,15 @@ class _ResumeViewScreenState extends State<ResumeViewScreen> {
       children: [
         Text(
           '${exp.title} at ${exp.company}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         Text(
           '${exp.startDate.toLocal().toString().split(' ')[0]} - ${exp.endDate.toLocal().toString().split(' ')[0]}',
-          style: Theme.of(context).textTheme.bodyText2,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         Text(
           exp.description,
-          style: Theme.of(context).textTheme.bodyText2,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
       ],
@@ -166,11 +166,11 @@ class _ResumeViewScreenState extends State<ResumeViewScreen> {
       children: [
         Text(
           '${edu.degree} in ${edu.fieldOfStudy} from ${edu.school}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         Text(
           '${edu.startDate.toLocal().toString().split(' ')[0]} - ${edu.endDate.toLocal().toString().split(' ')[0]}',
-          style: Theme.of(context).textTheme.bodyText2,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
       ],
@@ -233,7 +233,8 @@ class _ResumeViewScreenState extends State<ResumeViewScreen> {
     );
 
     final outputFile = await _savePDFToFile(pdf);
-    Share.shareFiles([outputFile.path], text: 'Here is my resume!');
+    final xFile = XFile(outputFile.path); // Create XFile object
+    Share.shareXFiles([xFile], text: 'Here is my resume!'); // Share XFile
   }
 
   Future<File> _savePDFToFile(pw.Document pdf) async {

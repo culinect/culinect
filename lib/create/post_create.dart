@@ -1,6 +1,8 @@
+import 'dart:async';
 import 'dart:io';
 
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:culinect/config/config.dart';
 import 'package:culinect/core/handlers/postimage_uploader/upload_image_html.dart'
     if (dart.library.html) 'package:culinect/core/handlers/postimage_uploader/upload_image_html.dart';
 import 'package:culinect/core/handlers/postimage_uploader/upload_image_io.dart'
@@ -10,6 +12,7 @@ import 'package:culinect/models/posts/posts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:image_picker/image_picker.dart';
 
 import '../auth/models/app_user.dart';
@@ -27,91 +30,141 @@ class CreatePostScreen extends StatefulWidget {
 
 class _CreatePostScreenState extends State<CreatePostScreen> {
   final TextEditingController _postController = TextEditingController();
+  final TextEditingController _placeController = TextEditingController();
   final ImagePicker _picker = ImagePicker();
-  List<XFile>? _imageFiles;
+  XFile? _imageFile;
+  String _visibility = 'public';
+  String _location = 'unknown';
+  bool _isUploading = false;
+  bool _isFetchingLocation = false;
+  FlutterGooglePlacesSdk places = FlutterGooglePlacesSdk(GOOGLE_PLACES_API_KEY);
+  List<AutocompletePrediction> _placePredictions = [];
+  Timer? _debounce;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _debounce?.cancel();
+    _postController.dispose();
+    _placeController.dispose();
+    super.dispose();
+  }
 
   Future<void> _pickImage() async {
-    final List<XFile>? selectedImages = await _picker.pickMultiImage();
-    if (selectedImages != null && selectedImages.length <= 5) {
-      setState(() {
-        _imageFiles = selectedImages;
-      });
-    } else {
-      // Show an error message
+    try {
+      final XFile? selectedImage =
+          await _picker.pickImage(source: ImageSource.gallery);
+      if (selectedImage != null) {
+        setState(() {
+          _imageFile = selectedImage;
+        });
+      }
+    } catch (e) {
+      _showSnackbar('Error picking image: $e');
     }
   }
 
   Future<void> _addPost() async {
     final postText = _postController.text.trim();
-    if (postText.isNotEmpty && _imageFiles != null) {
-      final List<String> imageUrls = [];
+    if (postText.isEmpty || _imageFile == null) {
+      _showSnackbar('Please add an image and write a caption.');
+      return;
+    }
 
-      for (XFile imageFile in _imageFiles!) {
-        final imageUrl =
-            await imageUploader.uploadImageToFirebase(imageFile.path);
-        imageUrls.add(imageUrl);
-      }
+    setState(() {
+      _isUploading = true;
+    });
 
+    try {
+      final imageUrl =
+          await imageUploader.uploadImageToFirebase(_imageFile!.path);
       final currentUser = FirebaseAuth.instance.currentUser;
+
       if (currentUser != null) {
         final userRef =
             FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
         final userData = await userRef.get();
+
         if (userData.exists) {
-          final username =
-              userData['username'] ?? ''; // Fetch the username from Firestore
-          final email =
-              userData['email'] ?? ''; // Fetch the email from Firestore
-          final phoneNumber = userData['phoneNumber'] ??
-              ''; // Fetch the phone number from Firestore
-          final profilePicture = userData['profilePicture'] ??
-              ''; // Fetch the profile picture URL from Firestore
+          final username = userData['username'] ?? '';
+          final fullName =
+              userData['fullName'] ?? 'Unknown'; // Ensure fullName is retrieved
+          final email = userData['email'] ?? '';
+          final phoneNumber = userData['phoneNumber'] ?? '';
+          final profilePicture = userData['profilePicture'] ?? '';
 
           final newPost = Posts(
-            postId: '', // Firestore will automatically generate this ID
+            postId: '',
             authorBasicInfo: UserBasicInfo(
               uid: currentUser.uid,
-              fullName: username,
+              fullName: fullName,
               email: email,
               phoneNumber: phoneNumber,
               profilePicture: profilePicture,
               profileLink: '',
-              role: '', // Set the user's role
+              role: '',
             ),
             content: postText,
-            imageUrls: imageUrls,
-            videoUrl: '', // If any video URL is added
+            imageUrls: [imageUrl],
+            videoUrl: '',
             createdAt: Timestamp.now(),
             likesCount: 0,
             commentsCount: 0,
             savedCount: 0,
-            postLink: '', // Set the post link
-            location: '', // If any location is added
-            analytics: {}, // If any analytics are added
-            visibility: 'public', // Set visibility (public, private, etc.)
-            reactions: {}, // If any reactions are added
+            postLink: '',
+            location: _location,
+            analytics: {},
+            visibility: _visibility,
+            reactions: {},
           );
 
-          try {
-            final postRef = await FirebaseFirestore.instance
-                .collection('posts')
-                .add(newPost.toMap());
-            final postId = postRef.id; // Get the auto-generated document ID
-            String postLink = await BranchLinkGenerator.generatePostLink(
-                postId, postText, imageUrls[0]);
-            await postRef.update({
-              'postId': postId,
-              'postLink': postLink
-            }); // Update the postId and postLink
-            Navigator.of(context).pop();
-          } catch (e) {
-            print('Error adding post: $e');
-          }
+          final postRef = await FirebaseFirestore.instance
+              .collection('posts')
+              .add(newPost.toMap());
+          final postId = postRef.id;
+          String postLink = await BranchLinkGenerator.generatePostLink(
+              postId, postText, imageUrl);
+          await postRef.update({'postId': postId, 'postLink': postLink});
+          Navigator.of(context).pop();
         } else {
-          print('User data does not exist in Firestore');
+          _showSnackbar('User data does not exist in Firestore.');
         }
+      } else {
+        _showSnackbar('User is not logged in.');
       }
+    } catch (e) {
+      _showSnackbar('Error adding post: $e');
+    } finally {
+      setState(() {
+        _isUploading = false;
+      });
     }
+  }
+
+  void _searchPlace(String input) {
+    if (_debounce?.isActive ?? false) _debounce!.cancel();
+    _debounce = Timer(const Duration(milliseconds: 500), () async {
+      try {
+        final predictionsResponse =
+            await places.findAutocompletePredictions(input);
+
+        setState(() {
+          _placePredictions = predictionsResponse.predictions;
+        });
+      } catch (e) {
+        _showSnackbar('Error searching place: $e');
+      }
+    });
+  }
+
+  void _showSnackbar(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(message)),
+    );
   }
 
   @override
@@ -129,141 +182,147 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
         } else {
           return Scaffold(
             appBar: AppBar(
+              elevation: 0,
+              backgroundColor: Colors.transparent,
               title: const Text(
                 'Create Post',
                 style: TextStyle(
                     fontFamily: 'NunitoSans',
                     fontSize: 24.0,
-                    fontWeight: FontWeight.bold),
+                    fontWeight: FontWeight.bold,
+                    color: Colors.black),
               ),
               actions: [
-                TextButton(
-                  onPressed: _addPost,
-                  child: const Text(
-                    'Share',
-                    style: TextStyle(
-                      fontFamily: 'NunitoSans',
-                      fontSize: 18.0,
-                      fontWeight: FontWeight.bold,
-                      color: Colors.white,
-                    ),
-                  ),
+                IconButton(
+                  icon: _isUploading
+                      ? const CircularProgressIndicator()
+                      : const Icon(Icons.check),
+                  onPressed: _isUploading ? null : _addPost,
                 ),
               ],
+              iconTheme: const IconThemeData(
+                color: Colors.black,
+              ),
             ),
-            body: SingleChildScrollView(
+            body: Padding(
               padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Row(
-                    children: [
-                      CircleAvatar(
-                        radius: 24,
-                        backgroundImage: NetworkImage(snapshot.data![
-                            'profilePicture']), // Current user's profile picture
+              child: SingleChildScrollView(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    GestureDetector(
+                      onTap: _pickImage,
+                      child: Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          color: Colors.grey[200],
+                          borderRadius: BorderRadius.circular(10),
+                          image: _imageFile != null
+                              ? DecorationImage(
+                                  image: kIsWeb
+                                      ? NetworkImage(_imageFile!.path)
+                                      : FileImage(File(_imageFile!.path))
+                                          as ImageProvider,
+                                  fit: BoxFit.cover,
+                                )
+                              : null,
+                        ),
+                        child: _imageFile == null
+                            ? const Center(
+                                child: Icon(
+                                  Icons.camera_alt,
+                                  color: Colors.black45,
+                                  size: 50,
+                                ),
+                              )
+                            : null,
                       ),
-                      const SizedBox(width: 12),
-                      Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(
-                            snapshot.data!['fullName'],
-                            style: const TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          Text(
-                            '@${snapshot.data!['username']}',
-                            style: TextStyle(
-                              fontFamily: 'NunitoSans',
-                              fontSize: 14.0,
-                              color: Colors.grey[600],
-                            ),
-                          ),
-                        ],
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 16),
-                  TextField(
-                    controller: _postController,
-                    decoration: const InputDecoration(
-                      hintText: 'Write a caption...',
-                      hintStyle: TextStyle(
-                          fontFamily: 'NunitoSans',
-                          fontSize: 16,
-                          color: Colors.grey),
-                      filled: true,
-                      fillColor: Colors.white,
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.all(Radius.circular(16)),
-                        borderSide: BorderSide.none,
-                      ),
-                      contentPadding:
-                          EdgeInsets.symmetric(vertical: 16, horizontal: 16),
                     ),
-                    maxLines: 4,
-                    style: const TextStyle(
-                        fontFamily: 'NunitoSans',
-                        fontSize: 16,
-                        color: Colors.black),
-                  ),
-                  const SizedBox(height: 16),
-                  ElevatedButton.icon(
-                    onPressed: _pickImage,
-                    icon: const Icon(Icons.photo_library),
-                    label: const Text(
-                      'Select from Device',
+                    const SizedBox(height: 16.0),
+                    TextField(
+                      controller: _postController,
+                      maxLines: 4,
+                      decoration: InputDecoration(
+                        hintText: 'Write a caption...',
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 16.0),
+                    const Text(
+                      'Visibility',
                       style: TextStyle(
-                          color: Colors.white,
-                          fontFamily: 'NunitoSans',
-                          fontSize: 16),
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18),
                     ),
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Theme.of(context).primaryColor,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                      padding: const EdgeInsets.symmetric(
-                          vertical: 16, horizontal: 24),
-                    ),
-                  ),
-                  const SizedBox(height: 16),
-                  if (_imageFiles != null)
-                    GridView.builder(
-                      shrinkWrap: true,
-                      physics: const NeverScrollableScrollPhysics(),
-                      gridDelegate:
-                          const SliverGridDelegateWithFixedCrossAxisCount(
-                        crossAxisCount: 2,
-                        crossAxisSpacing: 8,
-                        mainAxisSpacing: 8,
-                      ),
-                      itemCount: _imageFiles!.length,
-                      itemBuilder: (context, index) {
-                        if (kIsWeb) {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Image.network(
-                              _imageFiles![index].path,
-                              fit: BoxFit.cover,
-                            ),
-                          );
-                        } else {
-                          return ClipRRect(
-                            borderRadius: BorderRadius.circular(16.0),
-                            child: Image.file(
-                              File(_imageFiles![index].path),
-                              fit: BoxFit.cover,
-                            ),
-                          );
-                        }
+                    const SizedBox(height: 8.0),
+                    DropdownButton<String>(
+                      value: _visibility,
+                      onChanged: (String? newValue) {
+                        setState(() {
+                          _visibility = newValue!;
+                        });
                       },
+                      items: <String>['public', 'followers', 'private']
+                          .map<DropdownMenuItem<String>>((String value) {
+                        return DropdownMenuItem<String>(
+                          value: value,
+                          child: Text(value),
+                        );
+                      }).toList(),
                     ),
-                ],
+                    const SizedBox(height: 16.0),
+                    const Text(
+                      'Location',
+                      style: TextStyle(
+                          fontWeight: FontWeight.bold,
+                          color: Colors.black,
+                          fontSize: 18),
+                    ),
+                    const SizedBox(height: 8.0),
+                    TextField(
+                      controller: _placeController,
+                      onChanged: _searchPlace,
+                      decoration: InputDecoration(
+                        hintText: 'Search place...',
+                        filled: true,
+                        fillColor: Colors.grey[100],
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(10),
+                          borderSide: BorderSide.none,
+                        ),
+                      ),
+                    ),
+                    const SizedBox(height: 8.0),
+                    _placePredictions.isNotEmpty
+                        ? ListView.builder(
+                            shrinkWrap: true,
+                            itemCount: _placePredictions.length,
+                            itemBuilder: (context, index) {
+                              return ListTile(
+                                title: Text(
+                                  _placePredictions[index].fullText ?? '',
+                                ),
+                                onTap: () {
+                                  _placeController.text =
+                                      _placePredictions[index].fullText ?? '';
+                                  setState(() {
+                                    _location =
+                                        _placePredictions[index].fullText ?? '';
+                                    _placePredictions = [];
+                                  });
+                                },
+                              );
+                            },
+                          )
+                        : Container(),
+                  ],
+                ),
               ),
             ),
           );
@@ -273,9 +332,20 @@ class _CreatePostScreenState extends State<CreatePostScreen> {
   }
 
   Future<Map<String, dynamic>> _getUserData() async {
-    String uid = FirebaseAuth.instance.currentUser!.uid;
-    DocumentSnapshot userDoc =
-        await FirebaseFirestore.instance.collection('users').doc(uid).get();
-    return userDoc.data() as Map<String, dynamic>;
+    final currentUser = FirebaseAuth.instance.currentUser;
+
+    if (currentUser != null) {
+      final userRef =
+          FirebaseFirestore.instance.collection('users').doc(currentUser.uid);
+      final userData = await userRef.get();
+
+      if (userData.exists) {
+        return userData.data() as Map<String, dynamic>;
+      } else {
+        throw Exception('User data does not exist in Firestore.');
+      }
+    } else {
+      throw Exception('User is not logged in.');
+    }
   }
 }

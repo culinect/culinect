@@ -1,5 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:culinect/models/posts/posts.dart';
+import 'package:culinect/widgets/post_card.dart';
 import 'package:flutter/material.dart';
 
 class PostsTab extends StatelessWidget {
@@ -21,18 +22,20 @@ class PostsTab extends StatelessWidget {
         if (snapshot.hasError) {
           return const Center(child: Text('Error loading posts'));
         }
-        final posts = snapshot.data!.docs
+        final posts = snapshot.data?.docs
             .map((doc) =>
                 Posts.fromMap(doc.data() as Map<String, dynamic>, doc.id))
             .toList();
+
+        if (posts == null || posts.isEmpty) {
+          return const Center(child: Text('No posts available'));
+        }
+
         return ListView.builder(
           itemCount: posts.length,
           itemBuilder: (context, index) {
             final post = posts[index];
-            return ListTile(
-              title: Text(post.content),
-              subtitle: Text(post.getCreatedTimeAgo()),
-            );
+            return PostCard(post: post, userId: userId);
           },
         );
       },

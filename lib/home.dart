@@ -11,6 +11,8 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_ui_auth/firebase_ui_auth.dart';
 import 'package:flutter/material.dart';
 
+import 'chat/messages_screen.dart';
+
 bool isLightTheme = true; // Define the variable at the top level
 
 class HomeScreen extends StatefulWidget {
@@ -188,6 +190,12 @@ class _HomeScreenState extends State<HomeScreen> {
                 IconButton(
                   icon: const Icon(Icons.message),
                   onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MessagesScreen(),
+                      ),
+                    );
                     // Add functionality for message icon
                   },
                 ),
@@ -369,6 +377,12 @@ class _HomeScreenState extends State<HomeScreen> {
                   icon: const Icon(Icons.message),
                   onPressed: () {
                     // Add functionality for message icon
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const MessagesScreen(),
+                      ),
+                    );
                   },
                 ),
                 GestureDetector(

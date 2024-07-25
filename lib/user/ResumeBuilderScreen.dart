@@ -62,7 +62,7 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
               const SizedBox(height: 10),
               Text(
                 'Experiences',
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               ..._experiences.map((exp) => ListTile(
                     title: Text(exp.title),
@@ -74,7 +74,7 @@ class _ResumeBuilderScreenState extends State<ResumeBuilderScreen> {
               const SizedBox(height: 10),
               Text(
                 'Education',
-                style: Theme.of(context).textTheme.headline6,
+                style: Theme.of(context).textTheme.bodyLarge,
               ),
               ..._educations.map((edu) => ListTile(
                     title: Text('${edu.school} - ${edu.degree}'),

@@ -1,11 +1,11 @@
-import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:intl/intl.dart';
 
 import '../../auth/models/app_user.dart';
+import '../../imports.dart';
 
 class Posts {
   final String postId;
-  final UserBasicInfo authorBasicInfo; // Updated author field
+  final UserBasicInfo authorBasicInfo;
   final String content;
   final List<String> imageUrls;
   final String videoUrl;
@@ -37,16 +37,23 @@ class Posts {
   });
 
   factory Posts.fromMap(Map<String, dynamic> data, String postId) {
+    if (kDebugMode) {
+      print('Data from Firestore: $data');
+    } // Debug statement
     return Posts(
       postId: postId,
       authorBasicInfo: UserBasicInfo(
-        uid: data['author']['userId'] ?? '',
-        fullName: data['author']['username'] ?? '',
-        email: '', // Add appropriate fields or use defaults based on your structure
-        phoneNumber: '', // Add appropriate fields or use defaults based on your structure
-        profilePicture: data['author']['profilePicture'] ?? '',
-        profileLink: '', // Add appropriate fields or use defaults based on your structure
-        role: data['role'], // Set a default role or handle this based on your logic
+        uid: data['author']?['userId'] ?? '',
+        fullName: data['author']?['fullName'] ?? '',
+        email:
+            '', // Add appropriate fields or use defaults based on your structure
+        phoneNumber:
+            '', // Add appropriate fields or use defaults based on your structure
+        profilePicture: data['author']?['profilePicture'] ?? '',
+        profileLink:
+            '', // Add appropriate fields or use defaults based on your structure
+        role: data['author']?['role'] ??
+            '', // Set a default role or handle this based on your logic
       ),
       content: data['content'] ?? '',
       imageUrls: List<String>.from(data['imageUrls'] ?? []),
@@ -85,26 +92,81 @@ class Posts {
     };
   }
 
-  // Inside the Post class
-
   String getCreatedTimeAgo() {
     final now = DateTime.now();
-    final difference = now.difference(createdAt as DateTime);
+    final difference = now.difference(createdAt.toDate());
 
     if (difference.inDays > 7) {
-      return DateFormat.yMMMd().format(createdAt as DateTime); // If more than a week, display date
+      return DateFormat.yMMMd().format(createdAt.toDate());
     } else if (difference.inDays >= 1) {
       final days = difference.inDays;
-      return '$days${days == 1 ? 'd' : 'd'}'; // Display days
+      return '$days${days == 1 ? ' day' : ' days'} ago';
     } else if (difference.inHours >= 1) {
       final hours = difference.inHours;
-      return '$hours${hours == 1 ? 'h' : 'h'}'; // Display hours
+      return '$hours${hours == 1 ? ' hour' : ' hours'} ago';
     } else if (difference.inMinutes >= 1) {
       final minutes = difference.inMinutes;
-      return '$minutes${minutes == 1 ? 'm' : 'm'}'; // Display minutes
+      return '$minutes${minutes == 1 ? ' minute' : ' minutes'} ago';
     } else {
-      return 'Just now'; // Display 'Just now' for recent posts
+      return 'Just now';
     }
   }
-}
 
+  Future<void> likePost(String userId) async {
+    final docRef = FirebaseFirestore.instance.collection('posts').doc(postId);
+    final snapshot = await docRef.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.data() as Map<String, dynamic>;
+      final likes = List<String>.from(data['likes'] ?? []);
+
+      if (likes.contains(userId)) {
+        likes.remove(userId);
+      } else {
+        likes.add(userId);
+      }
+
+      await docRef.update({
+        'likes': likes,
+        'likesCount': likes.length,
+      });
+    }
+  }
+
+  Future<bool> isLikedByUser(String userId) async {
+    final docRef = FirebaseFirestore.instance.collection('posts').doc(postId);
+    final snapshot = await docRef.get();
+
+    if (snapshot.exists) {
+      final data = snapshot.data() as Map<String, dynamic>;
+      final likes = List<String>.from(data['likes'] ?? []);
+      return likes.contains(userId);
+    }
+
+    return false;
+  }
+
+  Future<List<DocumentSnapshot>> getComments() async {
+    final querySnapshot = await FirebaseFirestore.instance
+        .collection('posts')
+        .doc(postId)
+        .collection('comments')
+        .orderBy('timestamp', descending: true)
+        .get();
+
+    return querySnapshot.docs;
+  }
+
+  Future<void> addComment(String userId, String comment) async {
+    final docRef = FirebaseFirestore.instance.collection('posts').doc(postId);
+    await docRef.collection('comments').add({
+      'userId': userId,
+      'comment': comment,
+      'timestamp': Timestamp.now(),
+    });
+
+    await docRef.update({
+      'commentsCount': FieldValue.increment(1),
+    });
+  }
+}

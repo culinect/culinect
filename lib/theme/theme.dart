@@ -3,37 +3,39 @@ import 'package:flutter/material.dart';
 class AppTheme {
   static ThemeData lightTheme = ThemeData(
     // Define the primary color
-    primaryColor: Colors.lightBlue,
-    // Define the accent color
-    hintColor: Colors.deepOrange,
+    primaryColor: Colors.cyanAccent,
     // Define the scaffold background color
-    scaffoldBackgroundColor: Colors.white,
+    scaffoldBackgroundColor: Colors.black45,
     // Define the app bar theme
     appBarTheme: const AppBarTheme(
-      color: Colors.indigoAccent,
+      color: Colors.black45,
       elevation: 0.0,
-      iconTheme: IconThemeData(color: Colors.white),
+      iconTheme: IconThemeData(color: Colors.cyanAccent),
       titleTextStyle: TextStyle(
-        color: Colors.white,
+        color: Colors.cyanAccent,
         fontSize: 20.0,
         fontWeight: FontWeight.bold,
       ),
     ),
     // Define the typography
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(fontSize: 16.0, color: Colors.black87),
-      bodyMedium: TextStyle(fontSize: 14.0, color: Colors.black54),
+      bodyLarge: TextStyle(fontSize: 16.0, color: Colors.cyanAccent),
+      bodyMedium: TextStyle(fontSize: 14.0, color: Colors.cyanAccent),
       displayLarge: TextStyle(
-          fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.black),
+          fontSize: 24.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.cyanAccent),
       titleLarge: TextStyle(
-          fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.black),
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.cyanAccent),
       // Add more text styles as needed
     ),
     // Define the button theme
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.indigoAccent,
+        foregroundColor: Colors.black45,
+        backgroundColor: Colors.cyanAccent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -42,14 +44,14 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: Colors.indigoAccent,
+        foregroundColor: Colors.cyanAccent,
         textStyle: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.indigoAccent,
-        side: const BorderSide(color: Colors.indigoAccent),
+        foregroundColor: Colors.cyanAccent,
+        side: const BorderSide(color: Colors.cyanAccent),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -59,23 +61,23 @@ class AppTheme {
     // Define the input decoration theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.grey[200],
+      fillColor: Colors.black45,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: const BorderSide(color: Colors.grey),
+        borderSide: const BorderSide(color: Colors.cyanAccent),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: const BorderSide(color: Colors.indigoAccent),
+        borderSide: const BorderSide(color: Colors.cyanAccent),
       ),
     ),
     // Define the card theme
     cardTheme: CardTheme(
-      color: Colors.white,
+      color: Colors.black45,
       elevation: 4.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -83,49 +85,51 @@ class AppTheme {
     ),
     // Define the bottom app bar theme
     bottomAppBarTheme: const BottomAppBarTheme(
-      color: Colors.deepOrange,
+      color: Colors.black45,
       elevation: 4.0,
     ),
     // Define the floating action button theme
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Colors.indigoAccent,
-      foregroundColor: Colors.white,
+      backgroundColor: Colors.cyanAccent,
+      foregroundColor: Colors.black45,
     ),
   );
 
   static ThemeData darkTheme = ThemeData(
     // Define the primary color
-    primaryColor: Colors.black,
-    // Define the accent color
-    hintColor: Colors.orange,
+    primaryColor: Colors.black45,
     // Define the scaffold background color
-    scaffoldBackgroundColor: Colors.black,
+    scaffoldBackgroundColor: Colors.black45,
     // Define the app bar theme
     appBarTheme: const AppBarTheme(
-      color: Colors.black,
+      color: Colors.black45,
       elevation: 0.0,
-      iconTheme: IconThemeData(color: Colors.white),
+      iconTheme: IconThemeData(color: Colors.cyanAccent),
       titleTextStyle: TextStyle(
-        color: Colors.white,
+        color: Colors.cyanAccent,
         fontSize: 20.0,
         fontWeight: FontWeight.bold,
       ),
     ),
     // Define the typography
     textTheme: const TextTheme(
-      bodyLarge: TextStyle(fontSize: 16.0, color: Colors.white70),
-      bodyMedium: TextStyle(fontSize: 14.0, color: Colors.white60),
+      bodyLarge: TextStyle(fontSize: 16.0, color: Colors.cyanAccent),
+      bodyMedium: TextStyle(fontSize: 14.0, color: Colors.cyanAccent),
       displayLarge: TextStyle(
-          fontSize: 24.0, fontWeight: FontWeight.bold, color: Colors.white),
+          fontSize: 24.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.cyanAccent),
       titleLarge: TextStyle(
-          fontSize: 20.0, fontWeight: FontWeight.bold, color: Colors.white),
+          fontSize: 20.0,
+          fontWeight: FontWeight.bold,
+          color: Colors.cyanAccent),
       // Add more text styles as needed
     ),
     // Define the button theme
     elevatedButtonTheme: ElevatedButtonThemeData(
       style: ElevatedButton.styleFrom(
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.black,
+        foregroundColor: Colors.black45,
+        backgroundColor: Colors.cyanAccent,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -134,14 +138,14 @@ class AppTheme {
     ),
     textButtonTheme: TextButtonThemeData(
       style: TextButton.styleFrom(
-        foregroundColor: Colors.orange,
+        foregroundColor: Colors.cyanAccent,
         textStyle: const TextStyle(fontSize: 16.0, fontWeight: FontWeight.bold),
       ),
     ),
     outlinedButtonTheme: OutlinedButtonThemeData(
       style: OutlinedButton.styleFrom(
-        foregroundColor: Colors.orange,
-        side: const BorderSide(color: Colors.orange),
+        foregroundColor: Colors.cyanAccent,
+        side: const BorderSide(color: Colors.cyanAccent),
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(12.0),
         ),
@@ -151,23 +155,23 @@ class AppTheme {
     // Define the input decoration theme
     inputDecorationTheme: InputDecorationTheme(
       filled: true,
-      fillColor: Colors.grey[800],
+      fillColor: Colors.black45,
       border: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
         borderSide: BorderSide.none,
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: const BorderSide(color: Colors.grey),
+        borderSide: const BorderSide(color: Colors.cyanAccent),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12.0),
-        borderSide: const BorderSide(color: Colors.orange),
+        borderSide: const BorderSide(color: Colors.cyanAccent),
       ),
     ),
     // Define the card theme
     cardTheme: CardTheme(
-      color: Colors.grey[900],
+      color: Colors.black45,
       elevation: 4.0,
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadius.circular(12.0),
@@ -175,13 +179,13 @@ class AppTheme {
     ),
     // Define the bottom app bar theme
     bottomAppBarTheme: const BottomAppBarTheme(
-      color: Colors.black,
+      color: Colors.black45,
       elevation: 4.0,
     ),
     // Define the floating action button theme
     floatingActionButtonTheme: const FloatingActionButtonThemeData(
-      backgroundColor: Colors.orange,
-      foregroundColor: Colors.white,
+      backgroundColor: Colors.cyanAccent,
+      foregroundColor: Colors.black45,
     ),
   );
 }

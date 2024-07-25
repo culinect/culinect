@@ -1,26 +1,20 @@
-import 'package:flutter/material.dart';
 import 'package:culinect/auth/models/app_user.dart';
+import 'package:culinect/core/handlers/Company_profile/company_upload_image_html.dart'
+    if (dart.library.html) 'package:culinect/core/handlers/Company_profile/company_upload_image_html.dart';
+// Conditional imports
+import 'package:culinect/core/handlers/Company_profile/company_upload_image_io.dart'
+    if (dart.library.io) 'package:culinect/core/handlers/Company_profile/company_upload_image_io.dart';
 import 'package:culinect/models/jobs_model/job.dart';
+import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:firebase_storage/firebase_storage.dart';
-import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
-import 'dart:typed_data';
 
-// Conditional imports
-import 'package:culinect/core/handlers/Company_profile/company_upload_image_io.dart'
-if (dart.library.io) 'package:culinect/core/handlers/Company_profile/company_upload_image_io.dart';
-import 'package:culinect/core/handlers/Company_profile/company_upload_image_html.dart'
-if (dart.library.html) 'package:culinect/core/handlers/Company_profile/company_upload_image_html.dart';
-import '../imports.dart';
 import '../core/handlers/Company_profile/company_upload_image.dart';
+import '../imports.dart';
 
 final CompanyImageUploader imageUploader =
-kIsWeb ? CompanyImageUploaderHtml() : CompanyImageUploaderIo();
+    kIsWeb ? CompanyImageUploaderHtml() : CompanyImageUploaderIo();
 
 class CreateJobScreen extends StatefulWidget {
   const CreateJobScreen({super.key});
@@ -73,8 +67,8 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
     List<AutocompletePrediction> predictions = response.predictions;
     if (predictions.isNotEmpty) {
       List<String> formattedSuggestions = predictions.map((prediction) {
-        String mainText = prediction.primaryText;
-        String secondaryText = prediction.secondaryText;
+        String? mainText = prediction.primaryText;
+        String? secondaryText = prediction.secondaryText;
         String cityStateCountry = '$mainText, $secondaryText';
         return cityStateCountry;
       }).toList();
@@ -195,10 +189,10 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
         children: [
           Text(
             'Job Details',
-            style: Theme.of(context).textTheme.headline5!.copyWith(
-              color: Colors.teal,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Colors.teal,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 20),
           TextFormField(
@@ -257,15 +251,15 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
         children: [
           Text(
             'Company Details',
-            style: Theme.of(context).textTheme.headline5!.copyWith(
-              color: Colors.teal,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Colors.teal,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 20),
           Text(
             'Upload Company Logo',
-            style: Theme.of(context).textTheme.subtitle1,
+            style: Theme.of(context).textTheme.bodyMedium,
           ),
           const SizedBox(height: 10),
           GestureDetector(
@@ -286,69 +280,71 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
             },
             child: CircleAvatar(
               radius: 50,
-              backgroundImage: _imageBytes != null
-                  ? MemoryImage(_imageBytes!)
-                  : null,
+              backgroundImage:
+                  _imageBytes != null ? MemoryImage(_imageBytes!) : null,
               child: _imageBytes == null
                   ? const Icon(Icons.camera_alt, size: 50)
                   : null,
             ),
           ),
           const SizedBox(height: 20),
-          TypeAheadFormField<String>(
-            textFieldConfiguration: TextFieldConfiguration(
-              controller: _companyNameController,
-              decoration: const InputDecoration(
-                labelText: 'Company Name',
-                border: OutlineInputBorder(),
-              ),
-            ),
-            suggestionsCallback: _getCompanySuggestions,
+          TypeAheadField<String>(
+            suggestionsCallback: (pattern) async {
+              return _getCompanySuggestions(pattern);
+            },
             itemBuilder: (context, suggestion) {
               return ListTile(
                 title: Text(suggestion),
               );
             },
-            onSuggestionSelected: (suggestion) {
+            onSelected: (suggestion) {
               _companyNameController.text = suggestion;
               setState(() {
                 _job.company.companyName = suggestion;
               });
             },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter company name';
-              }
-              return null;
-            },
-          ),
-          const SizedBox(height: 20),
-          TypeAheadFormField<String>(
-            textFieldConfiguration: TextFieldConfiguration(
-              controller: _locationController,
+            builder: (context, controller, focusNode) => TextField(
+              // Use builder here
+              controller: controller,
+              focusNode: focusNode,
+              autofocus: true,
+              style: DefaultTextStyle.of(context)
+                  .style
+                  .copyWith(fontStyle: FontStyle.italic),
               decoration: const InputDecoration(
-                labelText: 'Company Location',
                 border: OutlineInputBorder(),
+                hintText: 'Company Name', // Provide your hint text here
               ),
             ),
-            suggestionsCallback: _getLocationSuggestions,
+          ),
+          const SizedBox(height: 20),
+          TypeAheadField<String>(
+            suggestionsCallback: (pattern) async {
+              return _getLocationSuggestions(pattern);
+            },
             itemBuilder: (context, suggestion) {
               return ListTile(
                 title: Text(suggestion),
               );
             },
-            onSuggestionSelected: (suggestion) {
+            onSelected: (suggestion) {
               _locationController.text = suggestion;
               setState(() {
                 _job.location = suggestion;
               });
             },
-            validator: (value) {
-              if (value == null || value.isEmpty) {
-                return 'Please enter company location';
-              }
-              return null;
-            },
+            builder: (context, controller, focusNode) => TextField(
+              controller: controller,
+              focusNode: focusNode,
+              // autofocus: true, // You might not want autofocus here
+              style: DefaultTextStyle.of(context)
+                  .style
+                  .copyWith(fontStyle: FontStyle.italic),
+              decoration: const InputDecoration(
+                border: OutlineInputBorder(),
+                hintText: 'Company Location', // Provide your hint text
+              ),
+            ),
           ),
         ],
       ),
@@ -363,10 +359,10 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
         children: [
           Text(
             'Additional Details',
-            style: Theme.of(context).textTheme.headline5!.copyWith(
-              color: Colors.teal,
-              fontWeight: FontWeight.bold,
-            ),
+            style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                  color: Colors.teal,
+                  fontWeight: FontWeight.bold,
+                ),
           ),
           const SizedBox(height: 20),
           TextFormField(
@@ -380,7 +376,8 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
               }
               return null;
             },
-            onChanged: (value) => setState(() => _job.applicationMethod = value),
+            onChanged: (value) =>
+                setState(() => _job.applicationMethod = value),
           ),
           const SizedBox(height: 20),
           TextFormField(
@@ -415,17 +412,17 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
       children: [
         Text(
           'Review & Submit',
-          style: Theme.of(context).textTheme.headline5!.copyWith(
-            color: Colors.teal,
-            fontWeight: FontWeight.bold,
-          ),
+          style: Theme.of(context).textTheme.bodyLarge!.copyWith(
+                color: Colors.teal,
+                fontWeight: FontWeight.bold,
+              ),
         ),
         const SizedBox(height: 20),
         ListTile(
           leading: _imageBytes != null
               ? CircleAvatar(
-            backgroundImage: MemoryImage(_imageBytes!),
-          )
+                  backgroundImage: MemoryImage(_imageBytes!),
+                )
               : null,
           title: Text('Company: ${_job.company.companyName}'),
           subtitle: Text('Location: ${_job.location}'),
@@ -433,32 +430,32 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
         const SizedBox(height: 20),
         Text(
           'Job Title: ${_job.title}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
         Text(
           'Description: ${_job.description}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
         Text(
           'Requirements: ${_job.requirements}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
         Text(
           'Application Method: ${_job.applicationMethod}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
         Text(
           'Email: ${_job.email}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
         const SizedBox(height: 10),
         Text(
           'Career Page: ${_job.careerPageUrl}',
-          style: Theme.of(context).textTheme.subtitle1,
+          style: Theme.of(context).textTheme.bodyMedium,
         ),
       ],
     );
@@ -508,7 +505,8 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
           try {
             // Upload image to Firebase Storage if image exists
             if (_imageBytes != null) {
-              String imageUrl = await imageUploader.uploadImageToFirebase(imagePath!);
+              String imageUrl =
+                  await imageUploader.uploadImageToFirebase(imagePath!);
               _job.company.companyLogoUrl = imageUrl;
             }
             // Save job data to Firestore
