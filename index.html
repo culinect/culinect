@@ -27,6 +27,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-performance-compat.js"></script>
 
   <script>
+    // Initialize Firebase
     const firebaseConfig = {
       apiKey: 'AIzaSyBXbbSsDVH1eVE297nCyU9euFilYmJWH1U',
       appId: '1:553932496521:web:bec35d05cb23cd9beef058',
@@ -41,26 +42,24 @@
     firebase.initializeApp(firebaseConfig);
     const messaging = firebase.messaging();
 
-    firebase.auth().onAuthStateChanged((user) => {
-      if (user) {
-        messaging.requestPermission()
-          .then(() => {
-            return messaging.getToken({
-              vapidKey: "BPYfFk4_ZwsXvOLSX_2O1-8k9dqjj0tQBCL9RH6NxN0W_xqoQoJkCHfGQSseb8c7a4wYGpXcHGpWXNWQHr-YRWM",
-              serviceWorkerRegistration: null
-            });
-          })
-          .then((token) => {
-            console.log('FCM Token:', token);
-          })
-          .catch((err) => {
-            console.log('Error getting token:', err);
-          });
-      }
+    // Request Permission and get token
+    messaging.getToken({
+      vapidKey: "BPYfFk4_ZwsXvOLSX_2O1-8k9dqjj0tQBCL9RH6NxN0W_xqoQoJkCHfGQSseb8c7a4wYGpXcHGpWXNWQHr-YRWM"
+    }).then((token) => {
+      console.log('FCM Token:', token);
+    }).catch((err) => {
+      console.log('Error getting token:', err);
     });
 
-    messaging.onMessage((payload) => {
-      console.log('Foreground message:', payload);
+    // Handle background messages
+    messaging.onBackgroundMessage((payload) => {
+      console.log('Background message:', payload);
+      const notificationTitle = payload.notification.title;
+      const notificationOptions = {
+        body: payload.notification.body,
+        icon: '/icons/Icon-192.png'
+      };
+      self.registration.showNotification(notificationTitle, notificationOptions);
     });
   </script>
 
@@ -68,40 +67,7 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
-    const serviceWorkerVersion = "3097592837";
-    var scriptLoaded = false;
-    function loadMainDartJs() {
-      if (scriptLoaded) {
-        return;
-      }
-      scriptLoaded = true;
-      var scriptTag = document.createElement('script');
-      scriptTag.src = 'main.dart.js';
-      scriptTag.type = 'application/javascript';
-      document.body.append(scriptTag);
-    }
-
-    if ('serviceWorker' in navigator) {
-      window.addEventListener('load', async function () {
-        try {
-          const registration = await navigator.serviceWorker.register(
-            './firebase-messaging-sw.js',
-            { scope: './' }
-          );
-          console.log('ServiceWorker registration successful');
-
-          const user = firebase.auth().currentUser;
-          if (user) {
-            await messaging.getToken({
-              vapidKey: 'BPYfFk4_ZwsXvOLSX_2O1-8k9dqjj0tQBCL9RH6NxN0W_xqoQoJkCHfGQSseb8c7a4wYGpXcHGpWXNWQHr-YRWM',
-              serviceWorkerRegistration: registration
-            });
-          }
-        } catch (err) {
-          console.log('ServiceWorker registration failed', err);
-        }
-      });
-    }
+    const flutter_service_worker_version = null;
   </script>
 
   <script src="flutter.js" defer></script>
@@ -125,6 +91,6 @@
   </script>
 </head>
 <body>
-<script src="main.dart.js" type="application/javascript"></script>
+<script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

@@ -1,24 +1,24 @@
-importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
-importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/9.x.x/firebase-app.js");
+importScripts("https://www.gstatic.com/firebasejs/9.x.x/firebase-messaging.js");
 
 firebase.initializeApp({
-  apiKey: 'AIzaSyBXbbSsDVH1eVE297nCyU9euFilYmJWH1U',
-  appId: '1:553932496521:web:bec35d05cb23cd9beef058',
-  messagingSenderId: '553932496521',
-  projectId: 'culinect-social',
-  authDomain: 'culinect-social.firebaseapp.com',
-  databaseURL: 'https://culinect-social-default-rtdb.firebaseio.com',
-  storageBucket: 'culinect-social.appspot.com',
-  measurementId: 'G-RQ20V98BR9',
+  apiKey: "your-api-key",
+  authDomain: "your-auth-domain",
+  projectId: "your-project-id",
+  storageBucket: "your-storage-bucket",
+  messagingSenderId: "your-sender-id",
+  appId: "your-app-id"
 });
 
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
+  console.log('Received background message:', payload);
+
   const notificationTitle = payload.notification.title;
   const notificationOptions = {
     body: payload.notification.body,
-    icon: '/icons/Icon-192.png'
+    icon: '/icons/icon-192x192.png'
   };
 
   return self.registration.showNotification(notificationTitle, notificationOptions);
