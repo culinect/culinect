@@ -1,27 +1,27 @@
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js');
-importScripts('https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js');
+importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js");
+importScripts("https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js");
 
-const firebaseConfig = {
-      apiKey: 'AIzaSyBXbbSsDVH1eVE297nCyU9euFilYmJWH1U',
-      appId: '1:553932496521:web:bec35d05cb23cd9beef058',
-      messagingSenderId: '553932496521',
-      projectId: 'culinect-social',
-      authDomain: 'culinect-social.firebaseapp.com',
-      databaseURL: 'https://culinect-social-default-rtdb.firebaseio.com',
-      storageBucket: 'culinect-social.appspot.com',
-      measurementId: 'G-RQ20V98BR9',
-};
-
-firebase.initializeApp(firebaseConfig);
+firebase.initializeApp({
+  apiKey: 'AIzaSyBXbbSsDVH1eVE297nCyU9euFilYmJWH1U',
+  appId: '1:553932496521:web:bec35d05cb23cd9beef058',
+  messagingSenderId: '553932496521',
+  projectId: 'culinect-social',
+  authDomain: 'culinect-social.firebaseapp.com',
+  databaseURL: 'https://culinect-social-default-rtdb.firebaseio.com',
+  storageBucket: 'culinect-social.appspot.com',
+  measurementId: 'G-RQ20V98BR9',
+});
 
 const messaging = firebase.messaging();
 
 messaging.onBackgroundMessage((payload) => {
-  const notification = payload.notification;
-  self.registration.showNotification(notification.title, {
-    body: notification.body,
-    icon: '/assets/icons/icon-192x192.png',
-    badge: '/assets/icons/badge-72x72.png',
-    data: payload.data
-  });
+  console.log('Received background message:', payload);
+
+  const notificationTitle = payload.notification.title;
+  const notificationOptions = {
+    body: payload.notification.body,
+    icon: '/icons/Icon-192.png'
+  };
+
+  return self.registration.showNotification(notificationTitle, notificationOptions);
 });
