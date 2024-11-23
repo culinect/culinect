@@ -46,7 +46,7 @@
   <link rel="manifest" href="manifest.json">
 
   <script>
-    const "2148023791" = null;
+    const {flutter_service_worker_version} = null;
   </script>
 
   <script src="flutter.js" defer></script>
@@ -72,18 +72,33 @@
 
 <body>
 <script>
-  window.addEventListener('load', function(ev) {
+  window.addEventListener('load', async function(ev) {
+    // Register service worker first
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register(
+          'firebase-messaging-sw.js',
+          {scope: 'firebase-cloud-messaging-push-scope'}
+        );
+        console.log('ServiceWorker registration successful');
+      } catch(err) {
+        console.log('ServiceWorker registration failed', err);
+      }
+    }
+
+    // Then initialize Flutter
     _flutter.loader.load({
       serviceWorker: {
         serviceWorkerVersion: serviceWorkerVersion,
-      },
-      onEntrypointLoaded: function(engineInitializer) {
-        engineInitializer.initializeEngine().then(function(appRunner) {
-          appRunner.runApp();
-        });
       }
+    }).then(function(engineInitializer) {
+      return engineInitializer.initializeEngine();
+    }).then(function(appRunner) {
+      return appRunner.runApp();
     });
   });
+
+
 </script>
 <script src="flutter_bootstrap.js" async></script>
 </body>
