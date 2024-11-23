@@ -1,9 +1,67 @@
+Culinect-calls:
+Name: culinect-calls
+App ID:
+af3c24221fe890ff4c321474d1cfd56c
+
+API Token:
+b8448a1173091905f8c075dad0efe34d3f9dc51a296dc2913f9a536f11e558d5
+
+-----------------------------------------
 CuliNect Keys
 
 Google Places API Key: AIzaSyBcWRykm6vWC3xjBrGzX9I35q1notoF5j0
+
+VAPID Keys:
+Public VAPID Key: BHHCPv2z55ld-VqQ4M3BeU67jNolT5hv_ddEmD7abow_vofBsDrAVblppZmzf-AAPj5dNXGNhqFX0JSGuUkLSNI
+Private VAPID Key: A5a-xW27C4YSDrKnoLqQBhFcFgrZjaKPqwsGsgD8KC8
 
 default_profile_image.png
 
 git push -u origin master
 
 git push origin --set-upstream gh-pages
+
+PS C:\Users\CuliNect\Documents\culinect> flutter pub global run peanut
+Validating packages:
+  C:\Users\CuliNect\Documents\culinect
+
+Package:     C:\Users\CuliNect\Documents\culinect
+Directories: web
+Command:     flutter build web --web-renderer auto --release
+
+
+Font asset "SocialIcons.ttf" was tree-shaken, reducing it from 2296 to 1272 bytes (44.6% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag when
+building your app.
+Font asset "CupertinoIcons.ttf" was tree-shaken, reducing it from 257628 to 2972 bytes (98.8% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag
+when building your app.
+Font asset "fa-regular-400.ttf" was tree-shaken, reducing it from 68004 to 1404 bytes (97.9% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag
+when building your app.
+Font asset "fa-solid-900.ttf" was tree-shaken, reducing it from 419720 to 1172 bytes (99.7% reduction). Tree-shaking can be disabled by providing the --no-tree-shake-icons flag
+when building your app.
+Font asset "MaterialIcons-Regular.otf" was tree-shaken, reducing it from 1645184 to 11900 bytes (99.3% reduction). Tree-shaking can be disabled by providing the
+--no-tree-shake-icons flag when building your app.
+Compiling lib\main.dart for the Web...                            272.7s
+√ Built build\web
+
+Branch "gh-pages" was updated with commit 98b9969c72
+  Built web
+
+  Branch: master
+  Commit: 8c20d6033ed05e7202f9cfb60aba4d8ca035b9fb
+
+  package:peanut 5.0.0
+
+To push your gh-pages branch to github (without switching from your working branch), run:
+  git push origin --set-upstream gh-pages
+PS C:\Users\CuliNect\Documents\culinect> git push origin --set-upstream gh-pages
+Enumerating objects: 31, done.
+Counting objects: 100% (31/31), done.
+Delta compression using up to 8 threads
+Compressing objects: 100% (14/14), done.
+Writing objects: 100% (16/16), 738.16 KiB | 3.35 MiB/s, done.
+Total 16 (delta 9), reused 0 (delta 0), pack-reused 0 (from 0)
+remote: Resolving deltas: 100% (9/9), completed with 9 local objects.
+To https://github.com/culinect/culinect.git
+   47d5537..26b0ff8  gh-pages -> gh-pages
+branch 'gh-pages' set up to track 'origin/gh-pages'.
+PS C:\Users\CuliNect\Documents\culinect>

@@ -15,6 +15,22 @@
       },
       "oauth_client": [
         {
+          "client_id": "553932496521-13o3ilcqt3l1khu40496qgaj8b9cjg2r.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.culinect.culinect",
+            "certificate_hash": "6107fb3e9ef083c310ffcd1ecaf0d944a9da066e"
+          }
+        },
+        {
+          "client_id": "553932496521-1qdtlpov45hai8948mubktinhvp8esre.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.culinect.culinect",
+            "certificate_hash": "4a82176ebd46e5501bcf21178763e2266fb7bca1"
+          }
+        },
+        {
           "client_id": "553932496521-mmtgu9ldb8p5sbo4bnoinmqmr3fjercs.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
@@ -23,7 +39,7 @@
           }
         },
         {
-          "client_id": "553932496521-h4rv7mucbl1movam4eqblkk7t6poesb1.apps.googleusercontent.com",
+          "client_id": "553932496521-lts73o12uj2svj8s2smh5ccshfjfqm8b.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -36,7 +52,7 @@
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "553932496521-h4rv7mucbl1movam4eqblkk7t6poesb1.apps.googleusercontent.com",
+              "client_id": "553932496521-lts73o12uj2svj8s2smh5ccshfjfqm8b.apps.googleusercontent.com",
               "client_type": 3
             },
             {

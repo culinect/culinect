@@ -1,5 +1,6 @@
-import 'package:culinect/user/ResumeViewScreen.dart';
 import 'package:flutter/material.dart';
+import 'package:culinect/user/ResumeBuilderScreen.dart';
+import 'package:culinect/user/ResumeViewScreen.dart';
 import 'package:share_plus/share_plus.dart';
 
 class UserInfoPanel extends StatelessWidget {
@@ -60,7 +61,6 @@ class UserInfoPanel extends StatelessWidget {
                         fontSize: 16,
                         color: Colors.grey,
                       ),
-                      textAlign: TextAlign.left,
                     ),
                     const SizedBox(height: 8),
                     Text(
@@ -69,7 +69,6 @@ class UserInfoPanel extends StatelessWidget {
                         fontSize: 16,
                         color: Colors.grey,
                       ),
-                      textAlign: TextAlign.left,
                     ),
                   ],
                 ),
@@ -82,9 +81,7 @@ class UserInfoPanel extends StatelessWidget {
                       Navigator.push(
                         context,
                         MaterialPageRoute(
-                          builder: (context) =>
-                              //ResumeBuilderScreen(), // Navigate to RecipeCreateScreen
-                              ResumeViewScreen(),
+                          builder: (context) => ResumeViewScreen(),
                         ),
                       );
                     },

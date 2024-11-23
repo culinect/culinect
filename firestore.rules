@@ -1,49 +1,72 @@
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Allow read access to posts, blogs, and recipes for non-logged-in users
-    match /posts/{postId} {
-      allow read;
+    // Allow read access to all documents for authenticated users
+    match /{document=**} {
+      allow read: if request.auth != null;
     }
 
-    match /blogs/{blogId} {
-      allow read;
-    }
+    // Conversations collection rules
+    match /conversations/{conversationId} {
+      // Allow read access if the user is a participant in the conversation
+      allow read: if request.auth != null && request.auth.uid in resource.data.participants;
+      
+      // Allow write access if the user is authenticated (for creating new conversations)
+      allow write: if request.auth != null;
 
-    match /recipes/{recipeId} {
-      allow read;
+      // Messages subcollection rules
+      match /messages/{messageId} {
+        // Allow read and write access if the user is authenticated and a participant in the conversation
+        allow read, write: if request.auth != null && request.auth.uid in get(/databases/$(database)/documents/conversations/$(conversationId)).data.participants;
+      }
     }
 
     // Users collection rules
     match /users/{userId} {
+      // Allow a user to create their own document, and read/update/delete their own document
       allow create, read, update, delete: if request.auth != null && request.auth.uid == userId;
+      // Allow read access to other users' documents
+      allow read: if request.auth != null;
 
+      // Subcollection rules
       match /followers/{followerId} {
+        // Allow a user to create/read/update/delete their own subcollections
         allow create, read, update, delete: if request.auth != null && request.auth.uid == userId;
       }
-
+      
       match /following/{followingId} {
         allow create, read, update, delete: if request.auth != null && request.auth.uid == userId;
       }
-
+      
       match /resume/{resumeId} {
         allow create, read, update, delete: if request.auth != null && request.auth.uid == userId;
       }
     }
 
-    // Likes and saves collection rules (for authenticated users)
-    match /likes/{postId} {
-      allow create, delete: if request.auth != null;
+    // Posts collection rules
+    match /posts/{postId} {
+      // Allow authenticated users to create a post
+      allow create: if request.auth != null;
+
+      // Allow anyone to read posts
+      allow read;
+
+      // Allow updates and deletes only by the post author
+      allow update, delete: if request.auth.uid == resource.data.author.userId;
+
+      // Subcollection rules
+      match /likes/{userId} {
+        // Allow a user to like/unlike a post or add/delete a comment
+        allow create, delete: if request.auth != null;
+        allow read: if request.auth != null;
+      }
+      
+      match /comments/{commentId} {
+        allow create, delete: if request.auth != null;
+        allow read: if request.auth != null;
+      }
     }
 
-    match /saves/{postId} {
-      allow create, delete: if request.auth != null;
-    }
-
-    // Jobs collection rules
-    match /jobs/{jobId} {
-      allow create, read, update, delete: if request.auth != null && request.resource.data.createdBy == /databases/$(database)/documents/users/$(request.auth.uid);
-    }
     // Jobs collection rules
     match /jobs/{jobId} {
       // Allow anyone to create a document, and the creator to read/update/delete their own documents
@@ -53,8 +76,14 @@ service cloud.firestore {
 
     // Recipes collection rules
     match /recipes/{recipeId} {
+      // Allow authenticated users to create a post
       allow create: if request.auth != null;
-      allow read, update, delete: if request.auth != null && request.resource.data.author == /databases/$(database)/documents/users/$(request.auth.uid);
+
+      // Allow anyone to read posts
+      allow read;
+
+      // Allow updates and deletes only by the post author
+      allow update, delete: if request.auth.uid == resource.data.author.userId;
     }
 
     // Hotels collection rules
@@ -79,7 +108,7 @@ service cloud.firestore {
     match /messages/{chatId} {
       // Allow a user to create a chat or send a message if they are part of the chat members
       allow create: if request.auth != null && request.resource.data.members.hasAny([request.auth.uid]);
-
+      
       match /messages/{messageId} {
         allow create: if request.auth != null && get(/databases/$(database)/documents/messages/$(chatId)).data.members.hasAny([request.auth.uid]);
         allow read: if request.auth != null && get(/databases/$(database)/documents/messages/$(chatId)).data.members.hasAny([request.auth.uid]);

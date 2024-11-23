@@ -46,6 +46,7 @@ class _ChatScreenState extends State<ChatScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Chat'),
+        backgroundColor: Colors.teal,
       ),
       body: Column(
         children: [
@@ -75,20 +76,23 @@ class _ChatScreenState extends State<ChatScreen> {
                     final message = messages[index];
                     final isMe = message['senderId'] == widget.userId;
 
-                    return ListTile(
-                      title: Align(
+                    return Padding(
+                      padding: const EdgeInsets.symmetric(
+                          vertical: 4.0, horizontal: 8.0),
+                      child: Align(
                         alignment:
                             isMe ? Alignment.centerRight : Alignment.centerLeft,
                         child: Container(
                           padding: const EdgeInsets.symmetric(
                               vertical: 10, horizontal: 14),
                           decoration: BoxDecoration(
-                            color: isMe ? Colors.blueAccent : Colors.grey,
+                            color: isMe ? Colors.teal : Colors.grey[300],
                             borderRadius: BorderRadius.circular(10),
                           ),
                           child: Text(
                             message['content'],
-                            style: const TextStyle(color: Colors.white),
+                            style: TextStyle(
+                                color: isMe ? Colors.white : Colors.black),
                           ),
                         ),
                       ),
@@ -105,13 +109,19 @@ class _ChatScreenState extends State<ChatScreen> {
                 Expanded(
                   child: TextField(
                     controller: _messageController,
-                    decoration: const InputDecoration(
+                    decoration: InputDecoration(
                       hintText: 'Type a message',
+                      filled: true,
+                      fillColor: Colors.grey[200],
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(30),
+                        borderSide: BorderSide.none,
+                      ),
                     ),
                   ),
                 ),
                 IconButton(
-                  icon: const Icon(Icons.send),
+                  icon: const Icon(Icons.send, color: Colors.teal),
                   onPressed: _sendMessage,
                 ),
               ],

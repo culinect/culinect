@@ -5,7 +5,8 @@ import 'package:culinect/core/handlers/Company_profile/company_upload_image_html
 import 'package:culinect/core/handlers/Company_profile/company_upload_image_io.dart'
     if (dart.library.io) 'package:culinect/core/handlers/Company_profile/company_upload_image_io.dart';
 import 'package:culinect/models/jobs_model/job.dart';
-import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+//import 'package:flutter_google_places_sdk/flutter_google_places_sdk.dart';
+//import 'package:flutter_google_places_sdk_platform_interface/flutter_google_places_sdk_platform_interface.dart';
 import 'package:flutter_typeahead/flutter_typeahead.dart';
 import 'package:im_stepper/stepper.dart';
 import 'package:image_picker/image_picker.dart';
@@ -34,34 +35,37 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
   final TextEditingController _locationController = TextEditingController();
   final TextEditingController _companyNameController = TextEditingController();
 
-  Future<List<String>> _getCompanySuggestions(String query) async {
-    final places = FlutterGooglePlacesSdk(GOOGLE_PLACES_API_KEY);
-    final response = await places.findAutocompletePredictions(
-      query,
-      placeTypesFilter: [PlaceTypeFilter.ESTABLISHMENT],
-    );
+  /*Future<List<String>> _getCompanySuggestions(String query) async {
+    try {
+      final places = FlutterGooglePlacesSdk(GOOGLE_PLACES_API_KEY);
+      final response = await places.findAutocompletePredictions(
+        PlaceTypeFilter.ESTABLISHMENT.toString(),
+      );
 
-    List<AutocompletePrediction> predictions = response.predictions;
-    if (predictions.isNotEmpty) {
-      List<String> companySuggestions = predictions.map((prediction) {
-        String mainText = prediction.primaryText;
-        return mainText;
-      }).toList();
-
-      return companySuggestions;
-    } else {
-      if (kDebugMode) {
-        print('No autocomplete predictions found');
+      List<AutocompletePrediction> predictions = response.predictions;
+      if (predictions.isNotEmpty) {
+        return predictions.map((prediction) => prediction.primaryText).toList();
+      } else {
+        // Handle the case where no predictions are found
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('No company suggestions found')),
+        );
+        return []; // Return an empty list
       }
-      return [];
+    } catch (e) {
+      // Handle any errors that occur during the API call
+      print('Error fetching company suggestions: $e');
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Failed to fetch suggestions')),
+      );
+      return []; // Return an empty list
     }
   }
 
   Future<List<String>> _getLocationSuggestions(String query) async {
     final places = FlutterGooglePlacesSdk(GOOGLE_PLACES_API_KEY);
     final response = await places.findAutocompletePredictions(
-      query,
-      placeTypesFilter: [PlaceTypeFilter.REGIONS],
+      PlaceTypeFilter.REGIONS.toString(),
     );
 
     List<AutocompletePrediction> predictions = response.predictions;
@@ -80,7 +84,7 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
       }
       return [];
     }
-  }
+  }*/
 
   @override
   void initState() {
@@ -290,7 +294,7 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
           const SizedBox(height: 20),
           TypeAheadField<String>(
             suggestionsCallback: (pattern) async {
-              return _getCompanySuggestions(pattern);
+              // return _getCompanySuggestions(pattern);
             },
             itemBuilder: (context, suggestion) {
               return ListTile(
@@ -320,7 +324,7 @@ class _CreateJobScreenState extends State<CreateJobScreen> {
           const SizedBox(height: 20),
           TypeAheadField<String>(
             suggestionsCallback: (pattern) async {
-              return _getLocationSuggestions(pattern);
+              // return _getLocationSuggestions(pattern);
             },
             itemBuilder: (context, suggestion) {
               return ListTile(

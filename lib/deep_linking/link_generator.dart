@@ -1,17 +1,17 @@
+import 'package:app_links/app_links.dart';
+import 'package:culinect/user/UserProfile_Screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart' as FlutterBranchSdk;
-import 'package:uni_links/uni_links.dart';
-import 'package:culinect/user/UserProfile_Screen.dart';
 
 class DeepLinkHandler {
-  static final _linkStream = linkStream;
+  static final AppLinks _appLinks = AppLinks();
 
   static Future<String?> getInitialLink() async {
     try {
-      final initialLink = await getInitialUri();
+      final initialLink = await _appLinks.getInitialLink();
       return initialLink?.toString();
     } catch (error) {
-      // Handle specific exceptions from uni_links
+      // Handle specific exceptions from app_links
       print('Error getting initial link: $error');
       return null;
     }
@@ -19,8 +19,10 @@ class DeepLinkHandler {
 
   static Stream<String?> getLinksStream() {
     try {
-      return _linkStream.map((event) => event?.toString()).handleError((error) {
-        // Handle specific exceptions from uni_links
+      return _appLinks.uriLinkStream
+          .map((event) => event?.toString())
+          .handleError((error) {
+        // Handle specific exceptions from app_links
         print('Error getting link stream: $error');
         return null;
       });
@@ -39,7 +41,8 @@ class DeepLinkHandler {
         String id = uri.pathSegments.last;
 
         if (path.startsWith('/users')) {
-          Navigator.of(context).push(MaterialPageRoute(builder: (context) => UserProfileScreen(userId: id)));
+          Navigator.of(context).push(MaterialPageRoute(
+              builder: (context) => UserProfileScreen(userId: id)));
         } else {
           // Handle other paths using a builder function
           handleOtherPath(context, path, id);
@@ -87,8 +90,8 @@ class LinkGenerator {
       if (response.success) {
         return response.result;
       } else {
-        print('Error generating short URL: ${response.errorCode} - ${response
-            .errorMessage}');
+        print(
+            'Error generating short URL: ${response.errorCode} - ${response.errorMessage}');
         return null;
       }
     } catch (error) {

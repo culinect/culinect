@@ -134,6 +134,7 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Start New Conversation'),
+        backgroundColor: Colors.teal,
       ),
       body: Column(
         children: [
@@ -143,6 +144,12 @@ class _UserSearchScreenState extends State<UserSearchScreen> {
               controller: _searchController,
               decoration: InputDecoration(
                 hintText: 'Search by full name',
+                filled: true,
+                fillColor: Colors.grey[200],
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(30),
+                  borderSide: BorderSide.none,
+                ),
                 suffixIcon: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: _searchUsers,

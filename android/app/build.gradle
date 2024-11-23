@@ -88,4 +88,11 @@ flutter {
     source '../..'
 }
 
-dependencies {}
+dependencies {
+    implementation 'com.squareup.okhttp3:okhttp:4.9.3'
+    implementation 'com.squareup.okio:okio:3.4.0'
+    implementation 'com.google.firebase:firebase-firestore:25.1.1'
+
+
+}
+

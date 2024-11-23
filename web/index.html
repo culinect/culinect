@@ -1,75 +1,106 @@
 <!DOCTYPE html>
 <html>
 <head>
-  <!--
-    If you are serving your web app in a path other than the root, change the
-    href value below to reflect the base path you are serving from.
-
-    The path provided below has to start and end with a slash "/" in order for
-    it to work correctly.
-
-    For more details:
-    * https://developer.mozilla.org/en-US/docs/Web/HTML/Element/base
-
-    This is a placeholder for base href that will be replaced by the value of
-    the `--base-href` argument provided to `flutter build`.
-  -->
   <base href="$FLUTTER_BASE_HREF">
 
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="The Social Chef">
+  <meta http-equiv="Cross-Origin-Opener-Policy" content="same-origin-allow-popups">
 
   <!-- iOS meta tags & icons -->
   <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black">
   <meta name="apple-mobile-web-app-title" content="culinect">
   <link rel="apple-touch-icon" href="icons/Icon-192.png">
 
   <!-- Favicon -->
   <link rel="icon" type="image/png" href="favicon.png"/>
-  <!-- Include Google Maps JavaScript API -->
-  <script
-          async
-          defer
-          src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCh9CXOOTJt-gQhyOUXe4HjqfJI1mga0w0&libraries=places">
+
+  <!-- Firebase SDK -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-messaging-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-analytics-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-storage-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-functions-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-performance-compat.js"></script>
+
+  <script>
+    const firebaseConfig = {
+      apiKey: 'AIzaSyBXbbSsDVH1eVE297nCyU9euFilYmJWH1U',
+      appId: '1:553932496521:web:bec35d05cb23cd9beef058',
+      messagingSenderId: '553932496521',
+      projectId: 'culinect-social',
+      authDomain: 'culinect-social.firebaseapp.com',
+      databaseURL: 'https://culinect-social-default-rtdb.firebaseio.com',
+      storageBucket: 'culinect-social.appspot.com',
+      measurementId: 'G-RQ20V98BR9',
+    };
+
+    firebase.initializeApp(firebaseConfig);
   </script>
+
   <title>culinect</title>
   <link rel="manifest" href="manifest.json">
+
   <script>
-    // The value below is injected by flutter build, do not touch.
-    const flutter_service_worker_version = null;
+    var flutter_service_worker_version = '1.0.0';
   </script>
-  <!-- This script adds the flutter initialization JS code -->
+
   <script src="flutter.js" defer></script>
-  <script>
 
-  <!-- Branch SDK Initialization -->
+  <!-- Branch SDK -->
   <script>
-    (function(b, r, a, n, c, h, _, s, d, k) {
-      if (!b[n] || !b[n]._q) {
-        for (; s < _.length;) c(h, _[s++]);
-        d = r.createElement(a);
-        d.async = 1;
-        d.src = "https://cdn.branch.io/branch-latest.min.js";
-        k = r.getElementsByTagName(a)[0];
-        k.parentNode.insertBefore(d, k);
-        b[n] = h;
+    (function(b,r,a,n,c,h,_,s,d,k){
+      if(!b[n]||!b[n]._q){
+        for(;s<_.length;)c(h,_[s++]);
+        d=r.createElement(a);
+        d.async=1;
+        d.src="https://cdn.branch.io/branch-latest.min.js";
+        k=r.getElementsByTagName(a)[0];
+        k.parentNode.insertBefore(d,k);
+        b[n]=h
       }
-    })(window, document, "script", "branch", function(b, r) {
-      b[r] = function() {
-        b._q.push([r, arguments]);
-      };
-    }, {
-      _q: [],
-      _v: 1
-    }, "addListener banner closeBanner closeJourney data deepview deepviewCta first init link logout removeListener setBranchViewData setIdentity track trackCommerceEvent logEvent disableTracking getBrowserFingerprintId crossPlatformIds lastAttributedTouchData setAPIResponseCallback qrCode setRequestMetaData setAPIUrl getAPIUrl setDMAParamsForEEA".split(" "), 0);
-
-    // Initialize Branch
-    branch.init('key_live_nwps1OYseoCnJGXIxKj7Sckhxti7wWJP'); // Change `key_live_YOUR_KEY_GOES_HERE` to match your Branch Dashboard
+    })(window,document,"script","branch",function(b,r){
+      b[r]=function(){b._q.push([r,arguments])}
+    },{_q:[],_v:1},"addListener banner closeBanner closeJourney data deepview deepviewCta first init link logout removeListener setBranchViewData setIdentity track trackCommerceEvent logEvent disableTracking getBrowserFingerprintId crossPlatformIds lastAttributedTouchData setAPIResponseCallback qrCode setRequestMetaData setAPIUrl getAPIUrl setDMAParamsForEEA".split(" "), 0);
+    branch.init('key_live_nwps1OYseoCnJGXIxKj7Sckhxti7wWJP');
   </script>
 </head>
+
 <body>
+<script>
+  window.addEventListener('load', async function(ev) {
+    // Register service worker first
+    if ('serviceWorker' in navigator) {
+      try {
+        const registration = await navigator.serviceWorker.register(
+          'firebase-messaging-sw.js',
+          {scope: 'firebase-cloud-messaging-push-scope'}
+        );
+        console.log('ServiceWorker registration successful');
+      } catch(err) {
+        console.log('ServiceWorker registration failed', err);
+      }
+    }
+
+    // Then initialize Flutter
+    _flutter.loader.load({
+      serviceWorker: {
+        serviceWorkerVersion: serviceWorkerVersion,
+      }
+    }).then(function(engineInitializer) {
+      return engineInitializer.initializeEngine();
+    }).then(function(appRunner) {
+      return appRunner.runApp();
+    });
+  });
+
+
+</script>
 <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>

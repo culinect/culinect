@@ -1,13 +1,14 @@
 name = "culinect-worker"
 main = "src/index.ts"
 compatibility_date = "2024-03-12"
+account_id = "d16dbf22c76479dee798a5136c34b582"
 
 kv_namespaces = [
 	{ binding = "KV", id = "210b2fef15e84ffa9487e1e31e7bd4fb" }
 ]
 
 r2_buckets = [
-	{ binding = "R2", bucket_name = "culinect-bucket", preview_bucket_name = "" }
+	{ binding = "MY_BUCKET", bucket_name = "culinect-bucket", preview_bucket_name = "" }
 ]
 
 d1_databases = [

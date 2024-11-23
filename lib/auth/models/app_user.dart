@@ -1,7 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 
-
-
 class UserBasicInfo {
   final String uid;
   final String fullName;
@@ -81,10 +79,12 @@ class UserExtendedInfo {
 class AppUser {
   final UserBasicInfo basicInfo;
   final UserExtendedInfo extendedInfo;
+  List<String> fcmTokens;
 
   AppUser({
     required this.basicInfo,
     required this.extendedInfo,
+    required this.fcmTokens,
   });
 
   factory AppUser.fromMap(Map<String, dynamic>? data) {
@@ -98,7 +98,7 @@ class AppUser {
         fullName: data['fullName'] ?? '',
         email: data['email'] ?? '',
         phoneNumber: data['phoneNumber'] ?? '',
-        profilePicture: data['profileImage'] ?? '',
+        profilePicture: data['profilePicture'] ?? '',
         profileLink: data['profileLink'] ?? '',
         role: data['role'] ?? '',
       ),
@@ -115,6 +115,7 @@ class AppUser {
         savedPosts: List<String>.from(data['savedPosts'] ?? []),
         postLinks: Map<String, dynamic>.from(data['postLinks'] ?? {}),
       ),
+      fcmTokens: List<String>.from(data['fcmTokens'] ?? []),
     );
   }
 
@@ -122,6 +123,7 @@ class AppUser {
     return {
       ...basicInfo.toMap(),
       ...extendedInfo.toMap(),
+      'fcmTokens': fcmTokens,
     };
   }
 }

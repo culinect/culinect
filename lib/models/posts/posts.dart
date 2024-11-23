@@ -37,9 +37,9 @@ class Posts {
   });
 
   factory Posts.fromMap(Map<String, dynamic> data, String postId) {
-    if (kDebugMode) {
-      print('Data from Firestore: $data');
-    } // Debug statement
+    // if (kDebugMode) {
+    // print('Data from Firestore: $data');
+    //} // Debug statement
     return Posts(
       postId: postId,
       authorBasicInfo: UserBasicInfo(

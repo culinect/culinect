@@ -2,13 +2,13 @@ import 'dart:io';
 import 'dart:typed_data';
 
 import 'package:firebase_storage/firebase_storage.dart' as firebase_storage;
+import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_branch_sdk/flutter_branch_sdk.dart';
-import 'package:path/path.dart';
-import 'package:flutter/material.dart';
 
 class BranchLinkGenerator {
-  static Future<String> generateUserLink(String userId, String displayName, String photoUrl) async {
+  static Future<String> generateUserLink(
+      String userId, String displayName, String photoUrl) async {
     String canonicalIdentifier = 'users/$userId';
 
     BranchUniversalObject buo = BranchUniversalObject(
@@ -36,7 +36,8 @@ class BranchLinkGenerator {
       ..addControlParam('\$always_deeplink', true)
       ..addControlParam('\$desktop_url', 'https://culinect.com/users/$userId');
 
-    BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
+    BranchResponse response =
+        await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
 
     if (response.success) {
       return response.result;
@@ -45,7 +46,8 @@ class BranchLinkGenerator {
     }
   }
 
-  static Future<String> generatePostLink(String postId, String postText, String imageUrl) async {
+  static Future<String> generatePostLink(
+      String postId, String postText, String imageUrl) async {
     String canonicalIdentifier = 'posts/$postId';
 
     BranchUniversalObject buo = BranchUniversalObject(
@@ -73,7 +75,8 @@ class BranchLinkGenerator {
       ..addControlParam('\$always_deeplink', true)
       ..addControlParam('\$desktop_url', 'https://culinect.com/posts/$postId');
 
-    BranchResponse response = await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
+    BranchResponse response =
+        await FlutterBranchSdk.getShortUrl(buo: buo, linkProperties: lp);
 
     if (response.success) {
       return response.result;
@@ -82,8 +85,10 @@ class BranchLinkGenerator {
     }
   }
 
-  static Future<void> generateQrCode(String userId, BranchUniversalObject buo, BranchLinkProperties lp, String imageURL) async {
-    BranchResponse responseQrCodeImage = await FlutterBranchSdk.getQRCodeAsImage(
+  static Future<void> generateQrCode(String userId, BranchUniversalObject buo,
+      BranchLinkProperties lp, String imageURL) async {
+    BranchResponse responseQrCodeImage =
+        await FlutterBranchSdk.getQRCodeAsImage(
       buo: buo,
       linkProperties: lp,
       qrCode: BranchQrCode(
@@ -98,10 +103,12 @@ class BranchLinkGenerator {
       try {
         print('QR Code Image Path: ${responseQrCodeImage.result}');
 
-        Uint8List imageBytes = await File(responseQrCodeImage.result).readAsBytes();
+        Uint8List imageBytes =
+            await File(responseQrCodeImage.result).readAsBytes();
 
         String path = 'users/$userId/qr/qr_$userId';
-        firebase_storage.Reference ref = firebase_storage.FirebaseStorage.instance.ref(path);
+        firebase_storage.Reference ref =
+            firebase_storage.FirebaseStorage.instance.ref(path);
 
         await ref.putData(imageBytes);
 
@@ -112,7 +119,8 @@ class BranchLinkGenerator {
         print('Error while uploading QR Code Image: $e');
       }
     } else {
-      print('Error : ${responseQrCodeImage.errorCode} - ${responseQrCodeImage.errorMessage}');
+      print(
+          'Error : ${responseQrCodeImage.errorCode} - ${responseQrCodeImage.errorMessage}');
     }
   }
 }

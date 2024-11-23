@@ -19,10 +19,9 @@ class _PostFeedScreenState extends State<PostFeedScreen> {
   Future<List<Posts>> _getPosts() async {
     try {
       QuerySnapshot querySnapshot = await _firestore.collection('posts').get();
-      print(
-          'Posts fetched from Firestore: ${querySnapshot.docs.length}'); // Debug statement
+      // print(          'Posts fetched from Firestore: ${querySnapshot.docs.length}'); // Debug statement
       return querySnapshot.docs.map((doc) {
-        print('Post data: ${doc.data()}'); // Debug statement
+        // print('Post data: ${doc.data()}'); // Debug statement
         return Posts.fromMap(doc.data() as Map<String, dynamic>, doc.id);
       }).toList();
     } catch (e) {
@@ -32,8 +31,7 @@ class _PostFeedScreenState extends State<PostFeedScreen> {
   }
 
   Widget _buildPostCard(Posts post) {
-    print(
-        'Building post card for: ${post.authorBasicInfo.fullName}'); // Debug statement
+    //print(        'Building post card for: ${post.authorBasicInfo.fullName}'); // Debug statement
     return Card(
       margin: const EdgeInsets.symmetric(vertical: 10.0, horizontal: 15.0),
       shape: RoundedRectangleBorder(

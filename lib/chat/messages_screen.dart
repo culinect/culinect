@@ -1,4 +1,5 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:culinect/auth/models/app_user.dart'; // Import your user model
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
@@ -18,6 +19,7 @@ class MessagesScreen extends StatelessWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Messages'),
+        backgroundColor: Colors.teal,
       ),
       body: StreamBuilder<QuerySnapshot>(
         stream: FirebaseFirestore.instance
@@ -47,22 +49,56 @@ class MessagesScreen extends StatelessWidget {
               final lastMessageTimestamp =
                   (conversation['lastMessageTimestamp'] as Timestamp).toDate();
 
-              return ListTile(
-                title: Text(participants.join(', ')),
-                subtitle: Text(lastMessageContent),
-                trailing: Text(
-                  '${lastMessageTimestamp.hour}:${lastMessageTimestamp.minute}',
-                  style: const TextStyle(fontSize: 12),
-                ),
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => ChatScreen(
-                        conversationId: conversationId,
-                        userId: user.uid,
-                      ),
+              // Fetch user details for the other participant
+              final otherUserId =
+                  participants.firstWhere((id) => id != user.uid);
+              return FutureBuilder<DocumentSnapshot>(
+                future: FirebaseFirestore.instance
+                    .collection('users')
+                    .doc(otherUserId)
+                    .get(),
+                builder: (context, userSnapshot) {
+                  if (!userSnapshot.hasData) {
+                    return const ListTile(
+                      title: Text('Loading...'),
+                    );
+                  }
+
+                  final userData =
+                      userSnapshot.data!.data() as Map<String, dynamic>;
+                  final appUser = AppUser.fromMap(userData);
+                  final fullName = appUser.basicInfo.fullName;
+                  final profilePicture = appUser.basicInfo.profilePicture;
+
+                  // Debugging statement
+                  print('Profile Picture URL: $profilePicture');
+
+                  return ListTile(
+                    leading: CircleAvatar(
+                      backgroundImage: profilePicture.isNotEmpty
+                          ? NetworkImage(profilePicture)
+                          : null,
+                      child: profilePicture.isEmpty
+                          ? const Icon(Icons.person)
+                          : null,
                     ),
+                    title: Text(fullName),
+                    subtitle: Text(lastMessageContent),
+                    trailing: Text(
+                      '${lastMessageTimestamp.hour}:${lastMessageTimestamp.minute}',
+                      style: const TextStyle(fontSize: 12),
+                    ),
+                    onTap: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => ChatScreen(
+                            conversationId: conversationId,
+                            userId: user.uid,
+                          ),
+                        ),
+                      );
+                    },
                   );
                 },
               );
@@ -72,6 +108,7 @@ class MessagesScreen extends StatelessWidget {
       ),
       floatingActionButton: FloatingActionButton(
         child: const Icon(Icons.add),
+        backgroundColor: Colors.teal,
         onPressed: () {
           Navigator.push(
             context,
