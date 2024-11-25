@@ -47,7 +47,7 @@ android {
     }
 
     kotlinOptions {
-        jvmTarget = '1.8'
+        jvmTarget = '17'
 
     }
 
@@ -92,7 +92,16 @@ dependencies {
     implementation 'com.squareup.okhttp3:okhttp:4.9.3'
     implementation 'com.squareup.okio:okio:3.4.0'
     implementation 'com.google.firebase:firebase-firestore:25.1.1'
-
-
+    implementation 'com.google.firebase:firebase-storage:21.0.1'
+    implementation 'com.google.firebase:firebase-auth:23.1.0'
+    implementation 'com.google.firebase:firebase-database:21.0.0'
+    implementation 'com.google.firebase:firebase-messaging:24.1.0'
+    implementation 'com.google.firebase:firebase-analytics:22.1.2'
+    implementation 'com.google.firebase:firebase-core:21.1.1'
+    implementation 'com.google.firebase:firebase-appcheck-playintegrity:18.0.0'
+    implementation 'com.google.firebase:firebase-appcheck-safetynet:18.0.0'
+    implementation 'com.google.firebase:firebase-appcheck-debug:18.0.0'
+    implementation 'com.google.firebase:firebase-appcheck:18.0.0'
+    implementation 'com.google.firebase:firebase-appcheck-common:18.0.0'
 }
 
