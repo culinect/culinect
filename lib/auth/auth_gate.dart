@@ -6,6 +6,7 @@ import 'package:culinect/config/config.dart';
 import 'package:culinect/deep_linking/branch_link_generator.dart';
 import 'package:culinect/deep_linking/branch_service.dart';
 import 'package:culinect/home/home_screen.dart';
+import 'package:culinect/onboarding/onboarding_flow.dart';
 import 'package:firebase_auth/firebase_auth.dart'
     hide PhoneAuthProvider, EmailAuthProvider;
 import 'package:firebase_messaging/firebase_messaging.dart';
@@ -43,6 +44,13 @@ class AuthGate extends StatelessWidget {
       'following_count': appUser.extendedInfo.followingCount,
       'saved_posts': jsonEncode(appUser.extendedInfo.savedPosts),
       'post_links': jsonEncode(appUser.extendedInfo.postLinks),
+      'is_profile_complete': false,
+      'specialties': [],
+      'interests': [],
+      'professional_title': '',
+      'years_experience': 0,
+      'certifications': [],
+      'education': []
     });
 
     final response = await http.post(url, headers: headers, body: body);
@@ -94,161 +102,146 @@ class AuthGate extends StatelessWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return const CircularProgressIndicator.adaptive(
               backgroundColor: Colors.amberAccent, strokeWidth: 4.0);
-        } else {
-          final User? user = snapshot.data;
-          if (user == null) {
-            return SignInScreen(
-              providers: [
-                EmailAuthProvider(),
-                GoogleProvider(clientId: GOOGLE_CLIENT_ID),
-              ],
-              headerBuilder: (context, constraints, shrinkOffset) {
-                return Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: Image.asset('assets/images/culinect_logo.png'),
-                  ),
-                );
-              },
-              subtitleBuilder: (context, action) {
-                return Padding(
-                  padding: const EdgeInsets.symmetric(vertical: 8.0),
-                  child: action == AuthAction.signIn
-                      ? const Text('Welcome to CuliNect, please sign in!')
-                      : const Text('Welcome to CuliNect, please sign up!'),
-                );
-              },
-              footerBuilder: (context, action) {
-                return const Padding(
-                  padding: EdgeInsets.only(top: 16),
-                  child: Text(
-                    'By signing in, you agree to our terms and conditions.',
-                    style: TextStyle(color: Colors.grey),
-                  ),
-                );
-              },
-              sideBuilder: (context, shrinkOffset) {
-                return Padding(
-                  padding: const EdgeInsets.all(20),
-                  child: AspectRatio(
-                    aspectRatio: 1,
-                    child: Image.asset('assets/images/culinect_logo.png'),
-                  ),
-                );
-              },
-            );
-          } else {
-            final userCollection =
-                FirebaseFirestore.instance.collection('users');
-            final userDoc = userCollection.doc(user.uid);
+        }
 
-            return FutureBuilder<DocumentSnapshot>(
-              future: userDoc.get(),
+        final User? user = snapshot.data;
+        if (user == null) {
+          return SignInScreen(
+            providers: [
+              EmailAuthProvider(),
+              GoogleProvider(clientId: GOOGLE_CLIENT_ID),
+            ],
+            headerBuilder: (context, constraints, shrinkOffset) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.asset('assets/images/culinect_logo.png'),
+                ),
+              );
+            },
+            subtitleBuilder: (context, action) {
+              return Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: action == AuthAction.signIn
+                    ? const Text('Welcome to CuliNect, please sign in!')
+                    : const Text('Welcome to CuliNect, please sign up!'),
+              );
+            },
+            footerBuilder: (context, action) {
+              return const Padding(
+                padding: EdgeInsets.only(top: 16),
+                child: Text(
+                  'By signing in, you agree to our terms and conditions.',
+                  style: TextStyle(color: Colors.grey),
+                ),
+              );
+            },
+            sideBuilder: (context, shrinkOffset) {
+              return Padding(
+                padding: const EdgeInsets.all(20),
+                child: AspectRatio(
+                  aspectRatio: 1,
+                  child: Image.asset('assets/images/culinect_logo.png'),
+                ),
+              );
+            },
+          );
+        }
+
+        final userCollection = FirebaseFirestore.instance.collection('users');
+        final userDoc = userCollection.doc(user.uid);
+
+        return FutureBuilder<DocumentSnapshot>(
+          future: userDoc.get(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const Align(
+                alignment: Alignment.center,
+                child: SizedBox(
+                  width: 36,
+                  height: 36,
+                  child: CircularProgressIndicator(
+                    backgroundColor: Colors.purpleAccent,
+                    strokeWidth: 4.0,
+                  ),
+                ),
+              );
+            }
+
+            if (snapshot.hasData && snapshot.data!.exists) {
+              final userData = snapshot.data!.data() as Map<String, dynamic>;
+              final isProfileComplete = userData['isProfileComplete'] ?? false;
+
+              _initializeFCMToken(user.uid);
+              return isProfileComplete ? const HomeScreen() : OnboardingFlow();
+            }
+
+            return FutureBuilder<String>(
+              future: BranchLinkGenerator.generateUserLink(
+                user.uid,
+                user.displayName ?? '',
+                user.photoURL ?? '',
+              ),
               builder: (context, snapshot) {
                 if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Align(
-                    alignment: Alignment.center,
-                    child: SizedBox(
-                      width: 36,
-                      height: 36,
-                      child: CircularProgressIndicator(
-                        backgroundColor: Colors.purpleAccent,
-                        strokeWidth: 4.0,
-                      ),
-                    ),
+                  return const CircularProgressIndicator.adaptive(
+                    backgroundColor: Colors.purpleAccent,
+                    strokeWidth: 4.0,
                   );
-                } else {
-                  if (snapshot.hasData && snapshot.data!.exists) {
-                    // Initialize FCM token for existing users
-                    _initializeFCMToken(user.uid);
-                    return const HomeScreen();
-                  } else {
-                    final String userId = user.uid;
-                    final String displayName = user.displayName ?? '';
-                    final String photoUrl = user.photoURL ?? '';
-
-                    Future<String> generateUserProfileLink(String userId,
-                        String displayName, String photoUrl) async {
-                      String link = await BranchLinkGenerator.generateUserLink(
-                          userId, displayName, photoUrl);
-                      return link;
-                    }
-
-                    return FutureBuilder<String>(
-                      future: generateUserProfileLink(
-                          userId, displayName, photoUrl),
-                      builder: (context, snapshot) {
-                        if (snapshot.connectionState ==
-                            ConnectionState.waiting) {
-                          return const CircularProgressIndicator.adaptive(
-                              backgroundColor: Colors.purpleAccent,
-                              strokeWidth: 4.0);
-                        } else {
-                          if (snapshot.hasData) {
-                            String link = snapshot.data!;
-                            AppUser appUser = AppUser(
-                              basicInfo: UserBasicInfo(
-                                uid: user.uid,
-                                fullName: displayName,
-                                email: user.email ?? '',
-                                phoneNumber: user.phoneNumber ?? '',
-                                profilePicture: photoUrl,
-                                profileLink: link,
-                                role: '', // Add your logic to get role
-                              ),
-                              extendedInfo: UserExtendedInfo(
-                                bio: '',
-                                joinedAt: DateTime.now(),
-                                resumeId: '',
-                                postCount: 0,
-                                recipeCount: 0,
-                                jobsCount: 0,
-                                username: '',
-                                followersCount: 0,
-                                followingCount: 0,
-                                savedPosts: [],
-                                postLinks: {},
-                              ),
-                              fcmTokens: [],
-                            );
-
-                            userDoc.set(appUser.toMap()).then((_) async {
-                              try {
-                                await createUserInD1(appUser);
-
-                                // Initialize FCM token for new users
-                                await _initializeFCMToken(userId);
-
-                                Navigator.pushReplacement(
-                                  context,
-                                  MaterialPageRoute(
-                                      builder: (context) => const HomeScreen()),
-                                );
-                              } catch (e) {
-                                if (kDebugMode) {
-                                  print('Error creating user in D1: $e');
-                                }
-                                // Handle the error appropriately
-                              }
-                            }).catchError((error) {
-                              if (kDebugMode) {
-                                print('Error setting user document: $error');
-                              }
-                            });
-                            return const SizedBox.shrink();
-                          } else {
-                            return const SizedBox.shrink();
-                          }
-                        }
-                      },
-                    );
-                  }
                 }
+
+                if (snapshot.hasData) {
+                  String link = snapshot.data!;
+                  AppUser appUser = AppUser(
+                    basicInfo: UserBasicInfo(
+                      uid: user.uid,
+                      fullName: user.displayName ?? '',
+                      email: user.email ?? '',
+                      phoneNumber: user.phoneNumber ?? '',
+                      profilePicture: user.photoURL ?? '',
+                      profileLink: link,
+                      role: '',
+                    ),
+                    extendedInfo: UserExtendedInfo(
+                      bio: '',
+                      joinedAt: DateTime.now(),
+                      resumeId: '',
+                      postCount: 0,
+                      recipeCount: 0,
+                      jobsCount: 0,
+                      username: '',
+                      followersCount: 0,
+                      followingCount: 0,
+                      savedPosts: [],
+                      postLinks: {},
+                    ),
+                    fcmTokens: [],
+                  );
+
+                  userDoc.set(appUser.toMap()).then((_) async {
+                    try {
+                      await createUserInD1(appUser);
+                      await _initializeFCMToken(user.uid);
+
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(
+                            builder: (context) => OnboardingFlow()),
+                      );
+                    } catch (e) {
+                      if (kDebugMode) {
+                        print('Error creating user in D1: $e');
+                      }
+                    }
+                  });
+                  return const SizedBox.shrink();
+                }
+                return const SizedBox.shrink();
               },
             );
-          }
-        }
+          },
+        );
       },
     );
   }

@@ -132,6 +132,7 @@ dependencies:
   flutter_chat_bubble: ^2.0.2
   googleapis: ^13.2.0
   googleapis_auth: ^1.6.0
+  get: ^4.6.6
 
 
 
